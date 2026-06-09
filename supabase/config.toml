@@ -1,0 +1,30 @@
+# Supabase project config (supabase CLI)
+project_id = "datingcoach"
+
+[auth]
+enable_anonymous_sign_ins = true
+
+[functions.chat]
+verify_jwt = true
+
+[functions.coach]
+verify_jwt = true
+
+[functions.rate-conversation]
+verify_jwt = true
+
+[functions.generate-persona-image]
+verify_jwt = true
+
+[functions.analyze-profile-image]
+verify_jwt = true
+
+[functions.create-checkout]
+verify_jwt = true
+
+# Webhooks authenticate via provider signatures, not Supabase JWTs
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.nowpayments-webhook]
+verify_jwt = false
