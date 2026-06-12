@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Text, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { useAuth } from '../lib/AuthContext';
+import { isBackendConfigured } from '../lib/supabase';
 import { Button, Card, Input, Muted, Screen, Subtitle, Title } from '../components/ui';
 import { colors, spacing } from '../lib/theme';
 
@@ -14,6 +15,10 @@ export default function AuthScreen() {
   const [busy, setBusy] = useState(false);
 
   const submit = async () => {
+    if (!isBackendConfigured) {
+      setError('🧪 Demo mode — accounts activate once the backend is connected.');
+      return;
+    }
     setBusy(true);
     setError(null);
     try {

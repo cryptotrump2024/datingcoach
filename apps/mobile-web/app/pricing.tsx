@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Linking, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useAuth } from '../lib/AuthContext';
+import { isBackendConfigured } from '../lib/supabase';
 import { createCheckout, CryptoPeriod } from '../lib/api';
 import { Button, Card, Muted, Pill, Screen, Subtitle, Title } from '../components/ui';
 import { colors, spacing } from '../lib/theme';
@@ -39,6 +40,12 @@ export default function Pricing() {
   const [coin, setCoin] = useState('usdttrc20');
 
   const requireAccount = () => {
+    if (!isBackendConfigured) {
+      setError(
+        '🧪 Demo mode — payments activate once the backend is connected. This will open Stripe checkout (cards) or a NOWPayments invoice (crypto).'
+      );
+      return true;
+    }
     if (!session || isAnonymous) {
       router.push('/auth');
       return true;

@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { router } from 'expo-router';
-import { supabase } from '../../lib/supabase';
+import { isBackendConfigured, supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/AuthContext';
 import { generatePersonaImage } from '../../lib/api';
+import { startDemo } from '../../lib/demo';
 import {
   Button,
   Card,
@@ -40,6 +41,31 @@ export default function NewPersona() {
   const [error, setError] = useState<string | null>(null);
 
   const create = async () => {
+    const characteristics: PersonaCharacteristics = {
+      age: Math.max(18, parseInt(age, 10) || 25),
+      occupation: occupation.trim() || 'marketing',
+      interests: interests
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+      attachment_style: attachment,
+      texting_style: textingStyle,
+      extra: extra.trim() || undefined,
+    };
+
+    if (!isBackendConfigured) {
+      // Demo mode: simulate locally, no database
+      startDemo({
+        name: name.trim() || 'Mia',
+        difficulty,
+        ethnicity,
+        personality_archetype: archetype,
+        characteristics,
+      });
+      router.replace('/demo');
+      return;
+    }
+
     if (!session) {
       router.push('/auth');
       return;
@@ -47,17 +73,6 @@ export default function NewPersona() {
     setBusy(true);
     setError(null);
     try {
-      const characteristics: PersonaCharacteristics = {
-        age: Math.max(18, parseInt(age, 10) || 25),
-        occupation: occupation.trim() || 'marketing',
-        interests: interests
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean),
-        attachment_style: attachment,
-        texting_style: textingStyle,
-        extra: extra.trim() || undefined,
-      };
       const { data, error: dbError } = await supabase
         .from('personas')
         .insert({

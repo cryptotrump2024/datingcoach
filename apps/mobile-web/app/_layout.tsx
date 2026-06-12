@@ -22,6 +22,7 @@ export default function RootLayout() {
         <Stack.Screen name="account" options={{ title: 'Account' }} />
         <Stack.Screen name="analyze" options={{ title: 'Profile Analyzer' }} />
         <Stack.Screen name="personas/new" options={{ title: 'Create her' }} />
+        <Stack.Screen name="demo" options={{ title: 'Demo chat' }} />
         <Stack.Screen name="chat/[id]" options={{ title: 'Chat' }} />
         <Stack.Screen name="rating/[id]" options={{ title: 'Conversation Report' }} />
       </Stack>

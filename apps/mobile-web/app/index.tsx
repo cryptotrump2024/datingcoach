@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { useAuth } from '../lib/AuthContext';
-import { supabase } from '../lib/supabase';
+import { isBackendConfigured, supabase } from '../lib/supabase';
 import { Button, Card, Muted, Screen, Subtitle, Title } from '../components/ui';
 import { colors, radius, spacing } from '../lib/theme';
 import { Conversation, Persona } from '../lib/types';
@@ -35,6 +35,11 @@ export default function Home() {
   );
 
   const tryFree = async () => {
+    if (!isBackendConfigured) {
+      // Demo mode: skip auth entirely, conversation is simulated locally
+      router.push('/personas/new');
+      return;
+    }
     setBusy(true);
     try {
       await startAnonymous();
@@ -57,6 +62,14 @@ export default function Home() {
       <Screen>
         <View style={styles.hero}>
           <Text style={styles.logo}>CharmCoach</Text>
+          {!isBackendConfigured && (
+            <View style={styles.demoBanner}>
+              <Text style={styles.demoBannerText}>
+                🧪 DEMO MODE — the backend isn't connected yet, so conversations
+                are simulated locally. Everything is clickable.
+              </Text>
+            </View>
+          )}
           <Title>The flight simulator for dating.</Title>
           <Subtitle>
             Practice real conversations with AI women who react like real life —
@@ -64,12 +77,23 @@ export default function Home() {
             decode what she's really saying, and learn what actually gets the
             number.
           </Subtitle>
-          <Button label="Try it free — no signup" onPress={tryFree} loading={busy} />
           <Button
-            label="I already have an account"
-            variant="ghost"
-            onPress={() => router.push('/auth')}
+            label={isBackendConfigured ? 'Try it free — no signup' : 'Try the demo'}
+            onPress={tryFree}
+            loading={busy}
           />
+          <Button
+            label="See pricing"
+            variant="secondary"
+            onPress={() => router.push('/pricing')}
+          />
+          {isBackendConfigured && (
+            <Button
+              label="I already have an account"
+              variant="ghost"
+              onPress={() => router.push('/auth')}
+            />
+          )}
           <Muted>
             Free trial includes 15 messages. AI simulations for adults — practice
             skills, not scripts.
@@ -166,6 +190,13 @@ function statusLabel(status: string) {
 
 const styles = StyleSheet.create({
   hero: { paddingTop: 80 },
+  demoBanner: {
+    backgroundColor: '#3A2230',
+    borderRadius: radius.sm,
+    padding: 10,
+    marginBottom: spacing.md,
+  },
+  demoBannerText: { color: colors.gold, fontSize: 12 },
   logo: { color: colors.accent, fontWeight: '900', fontSize: 22, marginBottom: spacing.lg },
   topBar: {
     flexDirection: 'row',

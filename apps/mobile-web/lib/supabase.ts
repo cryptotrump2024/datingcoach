@@ -10,14 +10,24 @@ const supabaseUrl =
 const supabaseAnonKey =
   process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || extra.supabaseAnonKey || '';
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  // Surfaced loudly so a missing .env is obvious during setup
+/**
+ * True once real Supabase credentials are configured. Until then the app
+ * runs in demo mode: UI fully browsable, conversations simulated locally.
+ */
+export const isBackendConfigured = !!(supabaseUrl && supabaseAnonKey);
+
+if (!isBackendConfigured) {
   console.warn(
-    'Supabase credentials missing. Set EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY.'
+    'Supabase credentials missing — running in DEMO MODE. Set EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY.'
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+// Placeholder credentials keep the client constructor from throwing (which
+// would blank-screen the whole app) while in demo mode.
+export const supabase = createClient(
+  supabaseUrl || 'https://demo-placeholder.supabase.co',
+  supabaseAnonKey || 'demo-placeholder-anon-key',
+  {
   auth: {
     storage: Platform.OS === 'web' ? undefined : AsyncStorage,
     autoRefreshToken: true,
